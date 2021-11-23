@@ -15,14 +15,15 @@ ssc=StreamingContext(sc,1)
 sp=SparkSession(sc)
 
 def output(rdd):
-  df=sp.read.json(rdd)
-  print(df)
-  #df.printSchema()
-  #df.show()
+  return json.loads(rdd)
+
+def func(rdd):
+  print(rdd.collect())
+  
   
 
 lines=ssc.socketTextStream("locahost",6100)
-lines.foreachRDD(lambda rdd:output(rdd))
+j_lines= lines.map(output).foreachRDD(func)
 
 ssc.start()
 ssc.awaitTermination()

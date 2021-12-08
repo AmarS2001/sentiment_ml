@@ -15,6 +15,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.naive_bayes import BernoulliNB
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
 import csv
 
 
@@ -59,6 +61,7 @@ def process3(x):
         res.append(stem_word)
     return " ".join(res)
     
+    
 
 
 def preprocess(df):
@@ -72,16 +75,22 @@ def preprocess(df):
 
 print("####### processed ######")
 
+	
+
 def svm_classifier(X_train, X_test, y_train, y_test):
 	SVCmodel = svm.LinearSVC()
 	SVCmodel.fit(X_train, y_train)
 	y_pred2 = SVCmodel.predict(X_test)
+	file1 = 'final1_model.sav'
+	pickle.dump(SVCmodel, open(file1, 'wb'))
 	return accuracy_score(y_test,y_pred2)
 
 def NB_classifier(X_train, X_test, y_train, y_test):
 	clf = RandomForestClassifier(max_depth=2, random_state=0)
 	clf.fit(X_train,y_train)
 	y_pred2= clf.predict(X_test)
+	file2 = 'final2_model.sav'
+	pickle.dump(clf, open(file2, 'wb'))
 	return accuracy_score(y_test,y_pred2)
 	
 
@@ -89,7 +98,30 @@ def Rf_classifier(X_train, X_test, y_train, y_test):
 	clf=BernoulliNB()
 	clf.fit(X_train,y_train)
 	y_pred2=clf.predict(X_test)
+	file3 = 'final3_model.sav'
+	pickle.dump(clf, open(file3, 'wb'))
 	return accuracy_score(y_test,y_pred2)
 	
 
+
+def test_cycle(x,y):
+	svm_model = pickle.load(open('final1_model.sav', 'rb'))
+	nb_model = pickle.load(open('final2_model.sav','rb'))
+	rf_model = pickle.load(open('final3_model.sav','rb'))
+	svm_model.fit(x,y)
+	nb_model.fit(x,y)
+	rf_model.fit(x,y)
+	svm_pred= svm_model.predict(x)
+	nb_pred = nb_model.predict(x)
+	rf_pred = rf_model.predict(x)
+	print("### report of SVM ###")
+	res1=classification_report(y, svm_pred)
+	print(res1)
+	print("")
+	print("### report of NB_classifier ###")
+	print(classification_report(y, nb_pred))
+	print("")
+	print("### report of RF_classifier ###")
+	print(classification_report(y, rf_pred))
+	print("")
 
